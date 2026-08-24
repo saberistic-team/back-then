@@ -28,31 +28,46 @@ pnpm db:setup
 pnpm db:verify
 ```
 
-The foundation migration creates a private, RLS-enabled `foundation` schema used only to prove migrations and fixture loading. It does not pre-build the Milestone 1 product schema. The TypeScript fixture loader refuses non-loopback database hosts.
+The foundation migration creates a private, RLS-enabled `foundation` schema used only to prove migrations and fixture loading. A separate idempotent migration provisions the private `recordings` and `photos` Storage buckets with the MIME allowlists and byte limits from ADR 0011. It does not pre-build the Milestone 1 product schema. The TypeScript fixture loader refuses non-loopback database hosts.
 
-For hosted projects, link and migrate staging and production separately. Always inspect the linked project reference and a migration dry run before applying a hosted migration. Never link a developer checkout to production for routine work.
+For hosted projects, link and migrate staging and production separately. Always inspect the linked project reference and a migration dry run before applying a hosted migration. Never link a developer checkout to production for routine work. Provision and verify staging repeatably with:
+
+```sh
+pnpm exec supabase link --project-ref "$SUPABASE_PROJECT_REF"
+pnpm exec supabase db push --linked --dry-run
+pnpm exec supabase db push --linked
+DEPLOYMENT_ENV=staging \
+  SUPABASE_PROJECT_REF="$SUPABASE_PROJECT_REF" \
+  SUPABASE_DB_PASSWORD="$SUPABASE_DB_PASSWORD" \
+  pnpm db:verify:staging-storage
+```
+
+`SUPABASE_DB_PASSWORD` is a staging-only secret and must never be committed or configured in Vercel. The read-only verification command pins the public `yzzmfeqivsanztuaztdf` staging project reference and its pooler identity, so it cannot be redirected to local or production resources through environment configuration. Local `pnpm db:verify` enforces the same bucket contract after every reset and in CI. The protected staging deployment runs the hosted check before building or publishing a release.
 
 ## Vercel and GitHub environments
 
-`vercel.json` identifies the Next.js framework, pinned install/build commands, and initial United States region. Two gated workflows are present:
+`vercel.json` identifies the Next.js framework, pinned install/build commands, and initial United States region. Vercel's native GitHub integration creates pull-request previews with Git Fork Protection enabled, so pull-request code never receives a Vercel account token from GitHub Actions.
 
-- `.github/workflows/deploy-preview.yml` for pull-request previews
-- `.github/workflows/deploy-staging.yml` for the persistent non-production deployment
+Automatic Git-based deployment is disabled for `main`; the CI-gated `.github/workflows/deploy-staging.yml` workflow owns the persistent non-production deployment. Other branches remain eligible for native Vercel Preview deployments.
 
-Create separate GitHub environments named `preview` and `staging`, then add these secrets to each:
+The persistent staging address is [https://backthen-staging-saberistics-projects.vercel.app](https://backthen-staging-saberistics-projects.vercel.app). Each successful release moves only this alias, while retaining the immutable deployment URL for diagnosis and rollback.
 
+Create a GitHub environment named `staging`, then add these secrets:
+
+- `SUPABASE_DB_PASSWORD`
 - `VERCEL_TOKEN`
 - `VERCEL_ORG_ID`
 - `VERCEL_PROJECT_ID`
 
-Configure the Vercel Preview environment with the staging environment values. Keep all feature flags off, `STRIPE_MODE=test`, and `EMAIL_DELIVERY_MODE=sandbox`. Weekly delivery is disabled, so staging cannot send a real scheduled question.
+Configure Vercel's Preview environment with the staging environment values. Keep all feature flags off, `STRIPE_MODE=test`, and `EMAIL_DELIVERY_MODE=sandbox`. Do not add service-role, Stripe, Resend, AI, or other private credentials to the shared Preview environment. Weekly delivery is disabled, so preview code cannot send a real scheduled question.
 
-Enable automatic workflows only after their secrets and Vercel environment variables are present:
+Enable automatic staging only after its secrets and Vercel environment variables are present:
 
-- Repository variable `VERCEL_PREVIEW_ENABLED=true`
 - Repository variable `VERCEL_STAGING_ENABLED=true`
 
-Until enabled, both workflows are safe no-ops on automatic events and remain available through manual dispatch.
+Until enabled, the staging workflow is a safe no-op. Staging has no manual deployment bypass: it runs only after the `CI` workflow succeeds for a `main` push from this repository and checks out the exact commit that CI tested.
+
+Protect `main` with strict, up-to-date required checks for `Quality and build`, `Migrations and fixtures`, `Browser scaffold`, and `Secret scan`. Apply the checks to administrators, reject force pushes and deletion, require conversation resolution, and restrict the GitHub `staging` environment to protected branches.
 
 ## Staging proof
 
@@ -64,6 +79,8 @@ A staging release is acceptable only when all of the following are captured in t
 4. The configured Supabase project reference is the dedicated staging reference.
 5. Stripe uses a test key if configured; email uses sandbox mode; demo and billing bypass are false.
 6. The deployed commit matches the commit that passed CI.
+
+The staging workflow enforces this record automatically. Before moving the stable alias, it verifies both Vercel's detected GitHub SHA and explicit tested-SHA metadata, requires the candidate deployment to be ready, and checks its protected `/api/health` endpoint. It then publishes the stable alias as the GitHub `staging` environment URL, confirms that the alias resolves to the verified deployment ID, checks health again through the alias, rejects any health payload beyond the four safe fields, and writes the stable URL, immutable URL, deployment ID, tested commit, and health result to the GitHub job summary.
 
 Production resources are defined by the matrix but do not need credentials during Milestone 0.
 

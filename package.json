@@ -30,7 +30,8 @@
     "db:reset": "supabase db reset",
     "db:fixtures": "node --import tsx scripts/load-demo-fixtures.ts",
     "db:setup": "pnpm db:reset && pnpm db:fixtures",
-    "db:verify": "node --import tsx scripts/verify-database.ts"
+    "db:verify": "node --import tsx scripts/verify-database.ts",
+    "db:verify:staging-storage": "node --import tsx scripts/verify-staging-storage.ts"
   },
   "dependencies": {
     "next": "16.3.2",

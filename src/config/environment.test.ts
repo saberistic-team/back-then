@@ -47,6 +47,34 @@ describe("runtime environment", () => {
     },
   );
 
+  it.each(["FEATURE_DEMO_DATA", "FEATURE_LOCAL_BILLING_BYPASS"])(
+    "rejects unsafe flag %s when a Vercel production deployment is mislabeled local",
+    (flag) => {
+      expect(() =>
+        parseRuntimeEnvironment({
+          DEPLOYMENT_ENV: "local",
+          ENVIRONMENT_ID: "backthen-local",
+          [flag]: "true",
+          VERCEL_ENV: "production",
+        }),
+      ).toThrow(
+        /Vercel production deployments must use DEPLOYMENT_ENV=production/,
+      );
+    },
+  );
+
+  it("rejects a mislabeled Vercel production deployment even with safe flags", () => {
+    expect(() =>
+      parseRuntimeEnvironment({
+        DEPLOYMENT_ENV: "local",
+        ENVIRONMENT_ID: "backthen-local",
+        VERCEL_ENV: "production",
+      }),
+    ).toThrow(
+      /Vercel production deployments must use DEPLOYMENT_ENV=production/,
+    );
+  });
+
   it("rejects live Stripe credentials in staging", () => {
     expect(() =>
       parseRuntimeEnvironment({
@@ -78,6 +106,7 @@ describe("runtime environment", () => {
       STRIPE_MODE: "live",
       STRIPE_SECRET_KEY: "sk_live_fictional",
       SUPABASE_PROJECT_REF: "backthen-production-placeholder",
+      VERCEL_ENV: "production",
     });
     expect(environment.DEPLOYMENT_ENV).toBe("production");
   });

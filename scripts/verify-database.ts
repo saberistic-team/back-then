@@ -1,6 +1,10 @@
 import postgres from "postgres";
 
 import { getLocalDatabaseUrl } from "./local-database";
+import {
+  assertStorageBucketContract,
+  type StorageBucketRow,
+} from "./storage-bucket-contract";
 
 const sql = postgres(getLocalDatabaseUrl(), { max: 1 });
 
@@ -33,8 +37,22 @@ try {
     throw new Error(`Database verification failed: ${JSON.stringify(result)}`);
   }
 
+  const buckets = await sql<StorageBucketRow[]>`
+    select
+      id,
+      name,
+      public,
+      file_size_limit::text,
+      allowed_mime_types
+    from storage.buckets
+    where id in ('photos', 'recordings')
+    order by id
+  `;
+
+  assertStorageBucketContract(buckets);
+
   process.stdout.write(
-    "Database migration, seed, and 30-memory fixture verification passed.\n",
+    "Database migrations, storage buckets, seed, and 30-memory fixture verification passed.\n",
   );
 } finally {
   await sql.end();

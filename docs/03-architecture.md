@@ -171,8 +171,9 @@ Expected configuration groups:
 
 Accepted foundation decisions are indexed in [adr/README.md](adr/README.md). They establish Next.js/TypeScript/Vercel, Supabase, Stripe entitlement policy, Resend, provider-neutral AI adapters, Vercel Cron with durable Postgres job state, recording and upload limits, a portable ZIP export, launch eligibility, deletion and export retention, AI data handling, and immutable submitted originals.
 
-Implementation details still requiring a decision:
+Implementation details intentionally deferred to their dependent milestones:
 
-1. Exact AI models/providers per capability
-2. Authenticated email-link/session mechanics
-3. Managed-backup retention details and the operational account-erasure workflow
+1. Analytics provider selection in Milestone 1 under ADR 0017
+2. Exact AI models/providers per capability in Milestones 2 and 3 under ADR 0014
+3. Authenticated email-link/session mechanics in Milestone 4
+4. The operational account-erasure workflow before Milestone 6

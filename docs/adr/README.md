@@ -26,6 +26,11 @@ This directory records consequential BackThen product and engineering decisions.
 | [0011](0011-mvp-media-formats-and-quotas.md) | Set initial media formats, per-file limits, and account quotas |
 | [0012](0012-ai-provider-data-handling.md) | Prohibit provider training on customer content and minimize AI retention |
 | [0013](0013-immutable-submissions-and-user-edits.md) | Preserve submitted originals and represent later edits as new revisions |
+| [0014](0014-defer-ai-provider-selection.md) | Select task-specific AI providers only when their milestone evaluations exist |
+| [0015](0015-backup-retention-and-recovery-objectives.md) | Set initial backup retention and database/media recovery objectives |
+| [0016](0016-answer-route-performance-budgets.md) | Set concrete weekly-answer performance budgets |
+| [0017](0017-defer-analytics-provider.md) | Defer the analytics vendor while enforcing a safe local event contract |
+| [0018](0018-confirmed-age-to-year-suggestions.md) | Allow explicitly confirmed approximate year suggestions without false precision |
 
 ## ADR conventions
 

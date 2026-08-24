@@ -119,10 +119,10 @@ The billing and trial policy is recorded in [ADR 0003](adr/0003-stripe-annual-pl
 
 The initial United States and age-18 launch boundary is recorded in [ADR 0009](adr/0009-us-launch-and-adult-eligibility.md). Deletion and export retention are recorded in [ADR 0010](adr/0010-deletion-recovery-and-export-expiry.md), media limits in [ADR 0011](adr/0011-mvp-media-formats-and-quotas.md), AI data handling in [ADR 0012](adr/0012-ai-provider-data-handling.md), and post-submission editing in [ADR 0013](adr/0013-immutable-submissions-and-user-edits.md).
 
-## Open product decisions
+## Remaining dependent decisions
 
-Resolve these before their dependent milestone:
+No unresolved product-policy decision blocks Milestone 0. Analytics provider selection is intentionally deferred to Milestone 1 by [ADR 0017](adr/0017-defer-analytics-provider.md), and AI provider/model selections to Milestones 2 and 3 by [ADR 0014](adr/0014-defer-ai-provider-selection.md).
 
-1. Whether approximate age can derive a suggested year from birth year, with explicit user confirmation.
+Approximate age may produce a user-confirmed approximate-year suggestion under [ADR 0018](adr/0018-confirmed-age-to-year-suggestions.md); it must never create an exact date silently.
 
 The initial portable export format is fixed by [ADR 0008](adr/0008-portable-zip-export.md).

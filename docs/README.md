@@ -26,6 +26,7 @@ Every MVP decision should make that loop simpler, safer, or more emotionally rew
 | [06-security-privacy-and-durability.md](06-security-privacy-and-durability.md) | Threat model, privacy controls, retention, exports, and operational safeguards |
 | [07-delivery-plan.md](07-delivery-plan.md) | Milestones, dependency order, acceptance gates, and deferred work |
 | [08-testing-and-observability.md](08-testing-and-observability.md) | Test strategy, analytics, logging, and production readiness |
+| [09-foundation-and-deployment.md](09-foundation-and-deployment.md) | Local setup, environment isolation, CI, deployment, and clean-clone verification |
 | [adr/README.md](adr/README.md) | Accepted architecture and product-policy decisions |
 
 ## Requirement priorities
@@ -50,6 +51,10 @@ The master prompt mandates Supabase/Postgres, Supabase Auth and Storage, and Str
 - Bounded trial/subscriber media quotas and cross-browser MVP media formats
 - No AI-provider training on customer content, with minimized provider retention
 - Immutable submitted originals with later edits stored as new revisions
+- Task-specific AI and analytics provider selections deferred until executable milestone evidence exists
+- Seven-day database backup retention with explicit database and media recovery objectives
+- Concrete Core Web Vitals, bundle, server-response, and preservation performance budgets
+- User-confirmed approximate-year suggestions that preserve the original approximate age
 
 Do not couple domain logic to any one AI model or infrastructure vendor. Revisit an ADR when operational evidence invalidates its assumptions.
 

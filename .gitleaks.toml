@@ -1,0 +1,4 @@
+title = "BackThen secret scanning"
+
+[extend]
+useDefault = true

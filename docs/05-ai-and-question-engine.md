@@ -4,6 +4,8 @@
 
 AI is a supporting interviewer and organizer, not the author of a user's life. The product must remain useful if an AI task is delayed or unavailable. A memory is preserved before polishing, title generation, entity extraction, or follow-up generation completes.
 
+Production provider and model selection is intentionally deferred until the task-specific Milestone 2 and 3 evaluations exist, as recorded in [ADR 0014](adr/0014-defer-ai-provider-selection.md).
+
 ## Universal truthfulness contract
 
 All AI tasks that transform personal content must:
@@ -139,4 +141,3 @@ Use human review on sampled fictional or expressly authorized test data. Never r
 - Make jobs replayable from immutable source revisions without overwriting prior output.
 - Provide a kill switch per AI capability.
 - Surface processing failure honestly while keeping the original usable.
-

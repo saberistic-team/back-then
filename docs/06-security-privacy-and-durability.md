@@ -95,11 +95,11 @@ Define a privacy policy, terms, AI-processing disclosure, and complete retention
 
 Suggested objectives to decide before launch:
 
-- Database recovery point objective and recovery time objective
-- Media recovery expectations
 - Maximum acceptable transcription/job delay
 - Export generation time
 - Incident notification and status communication process
+
+Initial database and media recovery objectives and backup windows are fixed in [ADR 0015](adr/0015-backup-retention-and-recovery-objectives.md).
 
 ## Deletion model
 

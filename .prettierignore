@@ -1,0 +1,11 @@
+.next
+AGENTS.md
+CLAUDE.md
+coverage
+docs
+master-prompt.md
+node_modules
+playwright-report
+pnpm-lock.yaml
+README.md
+test-results

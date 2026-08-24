@@ -58,7 +58,9 @@ Use the fictional corpus defined in [05-ai-and-question-engine.md](05-ai-and-que
 
 ## Performance budgets
 
-Set measured budgets during foundation work. Initial targets:
+The concrete budgets are recorded in [ADR 0016](adr/0016-answer-route-performance-budgets.md): LCP at most 2.5 seconds, INP at most 200 milliseconds, CLS at most 0.1, route-specific client JavaScript at most 150 KB compressed, authenticated question-read server response at most 800 milliseconds p95 in the initial region, and preservation acknowledgement at most two seconds p95 excluding media transfer.
+
+Implementation guidance:
 
 - Weekly question page should be server-rendered/cache-efficient and avoid loading archive data.
 - Core page content should become usable on a mid-range phone over constrained mobile networking within a few seconds.
@@ -132,4 +134,3 @@ Each alert needs an owner, severity, user impact, immediate containment steps, s
 - Dashboards and alerts cover new jobs/integrations.
 - Feature flag or rollback path exists for risky derived features.
 - First-memory and weekly-email flows are manually rehearsed in staging.
-

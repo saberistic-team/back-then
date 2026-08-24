@@ -1,9 +1,10 @@
 name: Deploy staging
 
 on:
-  push:
+  workflow_run:
+    workflows: [CI]
+    types: [completed]
     branches: [main]
-  workflow_dispatch:
 
 concurrency:
   group: staging
@@ -15,18 +16,35 @@ permissions:
 jobs:
   deploy:
     if:
-      ${{ github.event_name == 'workflow_dispatch' ||
-      vars.VERCEL_STAGING_ENABLED == 'true' }}
+      ${{ vars.VERCEL_STAGING_ENABLED == 'true' &&
+      github.event.workflow_run.conclusion == 'success' &&
+      github.event.workflow_run.event == 'push' &&
+      github.event.workflow_run.head_branch == 'main' &&
+      github.event.workflow_run.head_repository.full_name == github.repository
+      }}
     runs-on: ubuntu-latest
-    environment: staging
+    environment:
+      name: staging
+      url: ${{ steps.publish.outputs.staging_url }}
+    env:
+      STAGING_ALIAS: backthen-staging-saberistics-projects.vercel.app
+      TESTED_SHA: ${{ github.event.workflow_run.head_sha }}
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_sha }}
       - uses: pnpm/action-setup@v4
       - uses: actions/setup-node@v4
         with:
           node-version-file: .node-version
           cache: pnpm
       - run: pnpm install --frozen-lockfile
+      - name: Verify hosted staging storage
+        run: pnpm db:verify:staging-storage
+        env:
+          DEPLOYMENT_ENV: staging
+          SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
+          SUPABASE_PROJECT_REF: yzzmfeqivsanztuaztdf
       - run:
           pnpm dlx vercel@59.5.0 pull --yes --environment=preview
           --token="$VERCEL_TOKEN"
@@ -39,7 +57,93 @@ jobs:
           VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
-      - run: pnpm dlx vercel@59.5.0 deploy --prebuilt --token="$VERCEL_TOKEN"
+      - name: Deploy the tested build
+        id: deploy
+        run: |
+          deployment_json="$(pnpm --silent dlx vercel@59.5.0 deploy \
+            --prebuilt \
+            --meta testedCommitSha="$TESTED_SHA" \
+            --token="$VERCEL_TOKEN" \
+            --json)"
+          deployment_id="$(printf '%s' "$deployment_json" | jq -er '.deployment.id // .id')"
+          deployment_url="$(printf '%s' "$deployment_json" | jq -er '.deployment.url // .url')"
+          printf 'deployment_id=%s\ndeployment_url=%s\n' \
+            "$deployment_id" "$deployment_url" >> "$GITHUB_OUTPUT"
+        env:
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+      - name: Verify the candidate deployment
+        run: |
+          deployment_json="$(pnpm --silent dlx vercel@59.5.0 api \
+            "/v13/deployments/${{ steps.deploy.outputs.deployment_id }}" \
+            --token="$VERCEL_TOKEN" \
+            --raw)"
+          printf '%s' "$deployment_json" | jq -e \
+            --arg tested_sha "$TESTED_SHA" \
+            '.readyState == "READY" and
+             .meta.githubCommitSha == $tested_sha and
+             .meta.testedCommitSha == $tested_sha' > /dev/null
+
+          health_json="$(pnpm --silent dlx vercel@59.5.0 curl \
+            /api/health \
+            --deployment "${{ steps.deploy.outputs.deployment_url }}" \
+            --token="$VERCEL_TOKEN" \
+            -- --silent --show-error)"
+          printf '%s' "$health_json" | jq -e \
+            '. == {
+              environment: "staging",
+              service: "backthen",
+              status: "ok",
+              version: "0.0.0"
+            }' > /dev/null
+        env:
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+      - name: Publish the stable staging URL
+        id: publish
+        run: |
+          pnpm --silent dlx vercel@59.5.0 alias set \
+            "${{ steps.deploy.outputs.deployment_url }}" \
+            "$STAGING_ALIAS" \
+            --token="$VERCEL_TOKEN"
+          printf 'staging_url=https://%s\n' "$STAGING_ALIAS" >> "$GITHUB_OUTPUT"
+        env:
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+      - name: Verify and record the published release
+        run: |
+          published_json="$(pnpm --silent dlx vercel@59.5.0 inspect \
+            "$STAGING_ALIAS" \
+            --token="$VERCEL_TOKEN" \
+            --json)"
+          printf '%s' "$published_json" | jq -e \
+            --arg deployment_id '${{ steps.deploy.outputs.deployment_id }}' \
+            '.id == $deployment_id and .readyState == "READY"' > /dev/null
+
+          health_json="$(pnpm --silent dlx vercel@59.5.0 curl \
+            /api/health \
+            --deployment "$STAGING_ALIAS" \
+            --token="$VERCEL_TOKEN" \
+            -- --silent --show-error)"
+          printf '%s' "$health_json" | jq -e \
+            '. == {
+              environment: "staging",
+              service: "backthen",
+              status: "ok",
+              version: "0.0.0"
+            }' > /dev/null
+
+          printf '### Staging deployment verified\n\n' >> "$GITHUB_STEP_SUMMARY"
+          printf -- '- Stable URL: https://%s\n' "$STAGING_ALIAS" >> "$GITHUB_STEP_SUMMARY"
+          printf -- '- Immutable URL: %s\n' \
+            '${{ steps.deploy.outputs.deployment_url }}' >> "$GITHUB_STEP_SUMMARY"
+          printf -- '- Deployment ID: `%s`\n' \
+            '${{ steps.deploy.outputs.deployment_id }}' >> "$GITHUB_STEP_SUMMARY"
+          printf -- '- Tested commit: `%s`\n' "$TESTED_SHA" >> "$GITHUB_STEP_SUMMARY"
+          printf -- '- Health: `staging / ok`\n' >> "$GITHUB_STEP_SUMMARY"
         env:
           VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}

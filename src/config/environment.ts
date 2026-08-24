@@ -33,8 +33,20 @@ const environmentSchema = z
     FEATURE_AI_DERIVED: featureFlag,
     FEATURE_WEEKLY_DELIVERY: featureFlag,
     FEATURE_VOICE_TRANSCRIPTION: featureFlag,
+    VERCEL_ENV: z.enum(["development", "preview", "production"]).optional(),
   })
   .superRefine((environment, context) => {
+    const isVercelProduction = environment.VERCEL_ENV === "production";
+
+    if (isVercelProduction && environment.DEPLOYMENT_ENV !== "production") {
+      context.addIssue({
+        code: "custom",
+        message:
+          "Vercel production deployments must use DEPLOYMENT_ENV=production",
+        path: ["DEPLOYMENT_ENV"],
+      });
+    }
+
     const expectedId = `backthen-${environment.DEPLOYMENT_ENV}`;
     if (environment.ENVIRONMENT_ID !== expectedId) {
       context.addIssue({
@@ -48,7 +60,10 @@ const environmentSchema = z
       environment.FEATURE_DEMO_DATA,
       environment.FEATURE_LOCAL_BILLING_BYPASS,
     ];
-    if (environment.DEPLOYMENT_ENV !== "local" && unsafeFlags.some(Boolean)) {
+    if (
+      (environment.DEPLOYMENT_ENV !== "local" || isVercelProduction) &&
+      unsafeFlags.some(Boolean)
+    ) {
       context.addIssue({
         code: "custom",
         message:

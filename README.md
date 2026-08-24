@@ -23,7 +23,7 @@ This repository contains the Milestone 0 application foundation. The product bri
 - Node.js 24.18.0 and pnpm 11.23.0, pinned for reproducible installs
 - Local Supabase Auth, Postgres, Storage, migrations, and seeds
 - Vitest and Playwright test scaffolds
-- Vercel preview/staging workflows
+- Vercel GitHub previews and a CI-gated staging workflow
 - Runtime-validated environments and server-side feature flags
 
 ## Local setup
@@ -72,6 +72,7 @@ pnpm db:stop --no-backup
 | `pnpm db:reset` | Rebuild local Postgres from migrations and SQL seeds |
 | `pnpm db:fixtures` | Idempotently load the fictional demo archive |
 | `pnpm db:setup` / `pnpm db:verify` | Load and verify the complete local foundation database |
+| `pnpm db:verify:staging-storage` | Read-only verification of staging's private media buckets |
 | `pnpm check` | Run formatting, lint, types, unit coverage, and production build |
 
 The database and browser checks run as separate CI jobs because they require Docker and installed browser binaries.

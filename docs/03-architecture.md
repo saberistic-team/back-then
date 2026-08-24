@@ -169,11 +169,10 @@ Expected configuration groups:
 
 ## Architecture decisions
 
-Accepted foundation decisions are indexed in [adr/README.md](adr/README.md). They establish Next.js/TypeScript/Vercel, Supabase, Stripe entitlement policy, Resend, provider-neutral AI adapters, Vercel Cron with durable Postgres job state, a ten-minute recording limit, and a portable ZIP export.
+Accepted foundation decisions are indexed in [adr/README.md](adr/README.md). They establish Next.js/TypeScript/Vercel, Supabase, Stripe entitlement policy, Resend, provider-neutral AI adapters, Vercel Cron with durable Postgres job state, recording and upload limits, a portable ZIP export, launch eligibility, deletion and export retention, AI data handling, and immutable submitted originals.
 
 Implementation details still requiring a decision:
 
 1. Exact AI models/providers per capability
-2. Upload byte limits, supported codecs, and browser recording format
-3. Authenticated email-link/session mechanics
-4. Soft-delete recovery period and full account-erasure workflow
+2. Authenticated email-link/session mechanics
+3. Managed-backup retention details and the operational account-erasure workflow

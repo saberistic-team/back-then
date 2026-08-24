@@ -56,7 +56,7 @@ Any public wording must match actual system behavior.
 ### AI privacy
 
 - Send the minimum content required for each task.
-- Configure vendor retention/training settings to meet the product promise.
+- Prohibit AI-provider training on customer content and use zero retention when available, otherwise the shortest reviewed retention, as required by [ADR 0012](adr/0012-ai-provider-data-handling.md).
 - Document subprocessors and data regions before launch.
 - Never allow instructions embedded in a user's memory to override task rules or request secrets/tools.
 - Do not include unrelated memories in a prompt merely to improve personalization.
@@ -73,7 +73,7 @@ The Privacy area must support:
 - Sensitive-topic preferences.
 - A contact path for privacy/support requests.
 
-Define a privacy policy, terms, AI-processing disclosure, minimum-age policy, and retention schedule before accepting production users. Legal review depends on launch regions and is not replaced by this document.
+Define a privacy policy, terms, AI-processing disclosure, and complete retention schedule before accepting production users. The initial United States and age-18 boundary is defined in [ADR 0009](adr/0009-us-launch-and-adult-eligibility.md), and deletion/export retention in [ADR 0010](adr/0010-deletion-recovery-and-export-expiry.md). Legal review is still required and is not replaced by these documents.
 
 ## Administrative access
 
@@ -104,7 +104,7 @@ Suggested objectives to decide before launch:
 ## Deletion model
 
 1. User delete immediately removes content from normal reads and revokes links.
-2. A documented recovery window permits accidental-delete recovery, unless the user requests immediate erasure where required/supported.
+2. A 30-day recovery window permits accidental-delete recovery, unless a shorter or immediate erasure path is required and supported under [ADR 0010](adr/0010-deletion-recovery-and-export-expiry.md).
 3. Purge job deletes derived assets, originals, search indexes, and relational records in dependency order.
 4. Account deletion reconciles subscription state, revokes sessions/tokens, and purges owned content.
 5. Audit/billing records retain only minimal fields required for security or law and never retain memory bodies.
@@ -122,4 +122,3 @@ Suggested objectives to decide before launch:
 - Export contains only the requester's records; deletion removes the correct scope.
 - Dependency and secret scans pass.
 - Backup restore has been exercised in a non-production environment.
-

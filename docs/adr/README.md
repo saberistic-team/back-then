@@ -21,6 +21,11 @@ This directory records consequential BackThen product and engineering decisions.
 | [0006](0006-vercel-cron-and-durable-job-state.md) | Start with Vercel Cron while keeping durable, idempotent job state in Postgres |
 | [0007](0007-ten-minute-recording-limit.md) | Limit an individual MVP voice recording to ten minutes |
 | [0008](0008-portable-zip-export.md) | Export a portable ZIP containing Markdown, JSON, and original media |
+| [0009](0009-us-launch-and-adult-eligibility.md) | Launch initially in the United States for users age 18 and older |
+| [0010](0010-deletion-recovery-and-export-expiry.md) | Use a 30-day deletion recovery window and seven-day export expiry |
+| [0011](0011-mvp-media-formats-and-quotas.md) | Set initial media formats, per-file limits, and account quotas |
+| [0012](0012-ai-provider-data-handling.md) | Prohibit provider training on customer content and minimize AI retention |
+| [0013](0013-immutable-submissions-and-user-edits.md) | Preserve submitted originals and represent later edits as new revisions |
 
 ## ADR conventions
 
@@ -28,4 +33,3 @@ This directory records consequential BackThen product and engineering decisions.
 - Do not edit an accepted decision to conceal a change. Add a new ADR and mark the earlier record superseded.
 - Update affected implementation documentation when accepting or superseding a decision.
 - Keep secrets, vendor account identifiers, and private operational data out of ADRs.
-

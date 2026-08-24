@@ -168,7 +168,6 @@ Do not accept an object path from the client as proof of ownership. Signed reads
 - Draft: mutable and recoverable.
 - Preserved original: append-only.
 - Derived output: replaceable only by creating a new revision.
-- User delete: hide immediately, revoke access, queue object/data purge after the documented recovery period.
+- User delete: hide immediately, revoke access, and queue object/data purge after the 30-day recovery period defined in [ADR 0010](adr/0010-deletion-recovery-and-export-expiry.md).
 - Account delete: disable access, cancel/reconcile billing as appropriate, revoke tokens, queue complete relational and object erasure, and retain only legally required billing records.
-- Export: snapshot the user's owned content and sources; generated download URLs expire.
-
+- Export: snapshot the user's owned content and sources; generated archives and download access expire after seven days under [ADR 0010](adr/0010-deletion-recovery-and-export-expiry.md).

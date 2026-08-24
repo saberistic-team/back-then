@@ -45,6 +45,11 @@ The master prompt mandates Supabase/Postgres, Supabase Auth and Storage, and Str
 - Resend for weekly question emails
 - A provider-neutral server-side AI adapter for transcription and language tasks
 - Vercel hosting and scheduled functions for the initial deployment
+- A United States, age-18-and-older initial launch boundary
+- Thirty-day deletion recovery and seven-day generated-export expiry
+- Bounded trial/subscriber media quotas and cross-browser MVP media formats
+- No AI-provider training on customer content, with minimized provider retention
+- Immutable submitted originals with later edits stored as new revisions
 
 Do not couple domain logic to any one AI model or infrastructure vendor. Revisit an ADR when operational evidence invalidates its assumptions.
 

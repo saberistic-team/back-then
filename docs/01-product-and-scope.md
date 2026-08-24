@@ -117,14 +117,12 @@ Measure voice completion separately from written completion. Do not optimize eng
 
 The billing and trial policy is recorded in [ADR 0003](adr/0003-stripe-annual-plan-and-entitlements.md).
 
+The initial United States and age-18 launch boundary is recorded in [ADR 0009](adr/0009-us-launch-and-adult-eligibility.md). Deletion and export retention are recorded in [ADR 0010](adr/0010-deletion-recovery-and-export-expiry.md), media limits in [ADR 0011](adr/0011-mvp-media-formats-and-quotas.md), AI data handling in [ADR 0012](adr/0012-ai-provider-data-handling.md), and post-submission editing in [ADR 0013](adr/0013-immutable-submissions-and-user-edits.md).
+
 ## Open product decisions
 
 Resolve these before their dependent milestone:
 
-1. Whether submitted memories can be reverted to draft.
-2. Per-user media allowance and supported recording codecs/byte-size limit. The per-recording duration is fixed at ten minutes by [ADR 0007](adr/0007-ten-minute-recording-limit.md).
-3. Initial countries/time zones and email compliance requirements.
-4. Minimum age and consent policy.
-5. Whether approximate age can derive a suggested year from birth year, with explicit user confirmation.
+1. Whether approximate age can derive a suggested year from birth year, with explicit user confirmation.
 
 The initial portable export format is fixed by [ADR 0008](adr/0008-portable-zip-export.md).
